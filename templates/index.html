@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">Tic-Tac-Toe</h1>
+                
+                <!-- Score Board -->
+                <div class="score-board mb-4">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Player X</h5>
+                                    <p id="player-x-score">{{ player_x_score }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Player O</h5>
+                                    <p id="player-o-score">{{ player_o_score }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Player Indicator -->
+                <div id="current-player" class="mb-4">
+                    Player <span id="player-turn">X</span>'s Turn
+                </div>
+
+                <!-- Game Board -->
+                <div class="game-board">
+                    <div class="row g-2">
+                        <div class="col-4"><div class="cell" data-index="0"></div></div>
+                        <div class="col-4"><div class="cell" data-index="1"></div></div>
+                        <div class="col-4"><div class="cell" data-index="2"></div></div>
+                        <div class="col-4"><div class="cell" data-index="3"></div></div>
+                        <div class="col-4"><div class="cell" data-index="4"></div></div>
+                        <div class="col-4"><div class="cell" data-index="5"></div></div>
+                        <div class="col-4"><div class="cell" data-index="6"></div></div>
+                        <div class="col-4"><div class="cell" data-index="7"></div></div>
+                        <div class="col-4"><div class="cell" data-index="8"></div></div>
+                    </div>
+                </div>
+
+                <!-- Game Controls -->
+                <div class="mt-4">
+                    <button id="reset-game" class="btn btn-secondary me-2">
+                        <i class="fas fa-redo"></i> New Game
+                    </button>
+                    <button id="reset-scores" class="btn btn-outline-danger">
+                        <i class="fas fa-trash"></i> Reset Scores
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>
