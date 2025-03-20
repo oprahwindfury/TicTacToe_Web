@@ -11,39 +11,59 @@ class TicTacToe {
             [0, 4, 8], [2, 4, 6] // Diagonals
         ];
 
-        this.initializeGame();
+        // Wait for DOM to be fully loaded before initializing
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.initializeGame());
+        } else {
+            this.initializeGame();
+        }
     }
 
     initializeGame() {
-        this.cells = document.querySelectorAll('.cell');
+        // Cache DOM elements
+        this.cells = Array.from(document.querySelectorAll('.cell'));
         this.playerTurnElement = document.getElementById('player-turn');
+        this.currentPlayerDisplay = document.getElementById('current-player');
         this.resetGameBtn = document.getElementById('reset-game');
         this.resetScoresBtn = document.getElementById('reset-scores');
         this.aiSettings = document.getElementById('ai-settings');
+
+        if (!this.cells.length || !this.playerTurnElement || !this.resetGameBtn || !this.resetScoresBtn) {
+            console.error('Required DOM elements not found');
+            return;
+        }
 
         // Game mode selection
         const gameModeInputs = document.querySelectorAll('input[name="game-mode"]');
         gameModeInputs.forEach(input => {
             input.addEventListener('change', (e) => {
                 this.isAIGame = e.target.value === 'ai';
-                this.aiSettings.style.display = this.isAIGame ? 'block' : 'none';
+                if (this.aiSettings) {
+                    this.aiSettings.style.display = this.isAIGame ? 'block' : 'none';
+                }
                 this.resetGame();
             });
         });
 
         // AI difficulty selection
         const difficultySelect = document.getElementById('ai-difficulty');
-        difficultySelect.addEventListener('change', (e) => {
-            this.aiDifficulty = e.target.value;
-            this.resetGame();
-        });
+        if (difficultySelect) {
+            difficultySelect.addEventListener('change', (e) => {
+                this.aiDifficulty = e.target.value;
+                this.resetGame();
+            });
+        }
 
+        // Add event listeners
         this.cells.forEach(cell => {
             cell.addEventListener('click', () => this.handleCellClick(cell));
         });
 
         this.resetGameBtn.addEventListener('click', () => this.resetGame());
         this.resetScoresBtn.addEventListener('click', () => this.resetScores());
+
+        // Initialize the game state
+        this.resetGame();
     }
 
     handleCellClick(cell) {
@@ -59,6 +79,8 @@ class TicTacToe {
     }
 
     makeMove(index) {
+        if (!this.cells[index]) return;
+
         this.board[index] = this.currentPlayer;
         this.cells[index].textContent = this.currentPlayer;
         this.cells[index].classList.add('marked', this.currentPlayer.toLowerCase());
@@ -73,6 +95,8 @@ class TicTacToe {
     }
 
     makeAIMove() {
+        if (!this.gameActive) return;
+
         let move;
         switch (this.aiDifficulty) {
             case 'easy':
@@ -121,7 +145,7 @@ class TicTacToe {
         for (let i = 0; i < this.board.length; i++) {
             if (this.board[i] === '') {
                 this.board[i] = player;
-                if (this.checkWinner()) {
+                if (this.checkWinnerForBoard(this.board)) {
                     this.board[i] = '';
                     return i;
                 }
@@ -179,19 +203,7 @@ class TicTacToe {
     }
 
     checkWinner() {
-        return this.winningCombos.some(combo => {
-            if (
-                this.board[combo[0]] &&
-                this.board[combo[0]] === this.board[combo[1]] &&
-                this.board[combo[0]] === this.board[combo[2]]
-            ) {
-                combo.forEach(index => {
-                    this.cells[index].classList.add('winner');
-                });
-                return true;
-            }
-            return false;
-        });
+        return this.checkWinnerForBoard(this.board) !== null;
     }
 
     checkWinnerForBoard(board) {
@@ -201,6 +213,11 @@ class TicTacToe {
                 board[combo[0]] === board[combo[1]] &&
                 board[combo[0]] === board[combo[2]]
             ) {
+                if (this.cells) {
+                    combo.forEach(index => {
+                        this.cells[index].classList.add('winner');
+                    });
+                }
                 return board[combo[0]];
             }
         }
@@ -212,42 +229,63 @@ class TicTacToe {
     }
 
     checkDraw() {
-        return this.board.every(cell => cell !== '');
+        return this.isBoardFull(this.board);
     }
 
     handleWin() {
         this.gameActive = false;
-        fetch(`/update_score/${this.currentPlayer}`)
+        const winner = this.currentPlayer;
+
+        fetch(`/update_score/${winner}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('player-x-score').textContent = data.player_x_score;
-                document.getElementById('player-o-score').textContent = data.player_o_score;
+                const xScore = document.getElementById('player-x-score');
+                const oScore = document.getElementById('player-o-score');
+                if (xScore) xScore.textContent = data.player_x_score;
+                if (oScore) oScore.textContent = data.player_o_score;
             });
-        this.playerTurnElement.parentElement.textContent = `Player ${this.currentPlayer} Wins!`;
+
+        if (this.playerTurnElement) {
+            this.playerTurnElement.parentElement.textContent = `Player ${winner} Wins!`;
+        }
     }
 
     handleDraw() {
         this.gameActive = false;
-        this.playerTurnElement.parentElement.textContent = "It's a Draw!";
+        if (this.playerTurnElement) {
+            this.playerTurnElement.parentElement.textContent = "It's a Draw!";
+        }
     }
 
     switchPlayer() {
         this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
-        this.playerTurnElement.textContent = this.currentPlayer;
-        this.playerTurnElement.style.color = this.currentPlayer === 'X' ? 'var(--bs-info)' : 'var(--bs-warning)';
+        if (this.playerTurnElement) {
+            this.playerTurnElement.textContent = this.currentPlayer;
+            this.playerTurnElement.style.color = this.currentPlayer === 'X' ? 'var(--bs-info)' : 'var(--bs-warning)';
+        }
     }
 
     resetGame() {
         this.board = Array(9).fill('');
         this.gameActive = true;
         this.currentPlayer = 'X';
-        this.playerTurnElement.textContent = 'X';
-        this.playerTurnElement.parentElement.textContent = `Player ${this.currentPlayer}'s Turn`;
-        this.playerTurnElement.style.color = 'var(--bs-info)';
+
+        if (this.playerTurnElement) {
+            this.playerTurnElement.textContent = 'X';
+            const parentElement = this.playerTurnElement.parentElement;
+            if (parentElement) {
+                parentElement.textContent = "Player ";
+                parentElement.appendChild(this.playerTurnElement);
+                parentElement.appendChild(document.createTextNode("'s Turn"));
+            }
+            this.playerTurnElement.style.color = 'var(--bs-info)';
+        }
 
         this.cells.forEach(cell => {
-            cell.textContent = '';
-            cell.className = 'cell';
+            if (cell) {
+                cell.textContent = '';
+                cell.className = 'cell';
+            }
         });
     }
 
@@ -255,9 +293,12 @@ class TicTacToe {
         fetch('/reset_scores')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('player-x-score').textContent = data.player_x_score;
-                document.getElementById('player-o-score').textContent = data.player_o_score;
+                const xScore = document.getElementById('player-x-score');
+                const oScore = document.getElementById('player-o-score');
+                if (xScore) xScore.textContent = data.player_x_score;
+                if (oScore) oScore.textContent = data.player_o_score;
             });
+        this.resetGame();
     }
 }
 
