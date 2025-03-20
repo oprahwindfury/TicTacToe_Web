@@ -1,0 +1,11 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore Replit files
+.replit
+replit.nix
+
