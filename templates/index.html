@@ -13,7 +13,30 @@
         <div class="row justify-content-center">
             <div class="col-md-8 text-center">
                 <h1 class="mb-4">Tic-Tac-Toe</h1>
-                
+
+                <!-- Game Mode Selection -->
+                <div class="game-settings mb-4">
+                    <div class="btn-group" role="group" aria-label="Game Mode">
+                        <input type="radio" class="btn-check" name="game-mode" id="pvp" value="pvp" checked>
+                        <label class="btn btn-outline-primary" for="pvp">
+                            <i class="fas fa-user"></i> vs <i class="fas fa-user"></i>
+                        </label>
+                        <input type="radio" class="btn-check" name="game-mode" id="ai" value="ai">
+                        <label class="btn btn-outline-primary" for="ai">
+                            <i class="fas fa-user"></i> vs <i class="fas fa-robot"></i>
+                        </label>
+                    </div>
+
+                    <!-- AI Difficulty (hidden by default) -->
+                    <div id="ai-settings" class="mt-3" style="display: none;">
+                        <select id="ai-difficulty" class="form-select w-auto mx-auto">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Score Board -->
                 <div class="score-board mb-4">
                     <div class="row justify-content-center">
